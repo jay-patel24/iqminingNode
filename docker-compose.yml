@@ -1,0 +1,37 @@
+version: "3"
+
+volumes:
+  db: # mount it internally instead of a folder. it avoids file lock problems
+
+services:
+  app:
+    env_file:
+      - .env
+    container_name: awesome_nest_boilerplate
+    restart: always
+    build: .
+    ports:
+      - "$PORT:$PORT"
+    links:
+      - postgres
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      TZ: 'GMT'
+      PGTZ: 'GMT'
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    links:
+      - postgres
+    ports:
+      - "8081:8080" # to avoid conflicting the 8080 default for many cloud providers
